@@ -22,14 +22,13 @@ public:
       m_size(size)
     {
         m_header = new memBlock();
-        // Build the free list upon memory pool creation
         buildFreeList(m_header, m_memPool, m_size);
     }
 
     cAlloc(const cAlloc& calloc) = delete;
 
     template<typename T> 
-    void alloc(std::size_t size) {}
+    void alloc(std::size_t size) const {}
 
     void dealloc(void* ptr) {} 
 
@@ -37,12 +36,13 @@ private:
     /* Function used to construct the free list. 
       Returns a memBlock* to the head of the constructed free list.
     */
-    void buildFreeList(memBlock* head, char* memPool, std::size_t size) 
+    void buildFreeList(memBlock* head, char* memPool, const std::size_t size)
     {
         memBlock* temp; 
         for (std::size_t i = 0; i < size; i+= 4) {
             if (i == 0) {
                 head->ptr = static_cast<void*>(memPool);
+                head->prev = nullptr;
                 head->next = nullptr;
                 head->size = 4;
                 
@@ -51,17 +51,17 @@ private:
                 temp = head; 
             } else {
                 memBlock* newBlock = new memBlock();                
-                
                 // Set metadata about the block.
                 newBlock->ptr = static_cast<void*>(&memPool[i]);
                 newBlock->next = nullptr;  
+                newBlock->prev = temp; 
                 newBlock->size = 4; // represents 4 bytes
                 
                 // Move forward.
                 temp->next = newBlock;
                 temp = newBlock;
 
-                std::cout << "[" << newBlock->ptr << "]" << "->";
+                std::cout << "[" << &newBlock << "]" << ":" << "[" << newBlock->prev << "]" << "->";
             }
         }
     }
