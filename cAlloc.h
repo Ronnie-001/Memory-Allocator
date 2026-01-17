@@ -1,8 +1,10 @@
 #ifndef CALLOC_H
 #define CALLOC_H
 
+#include <cstdlib>
 #include <filesystem>
 #include <iostream>
+#include <type_traits>
 #include "memBlock.h"
 
 // The class that will be used for the allocator.
@@ -24,11 +26,46 @@ public:
         m_header = new memBlock;
         buildFreeList(m_header, m_memPool, m_size);
     }
+    
+    // destructor
+    ~cAlloc() {}
 
     cAlloc(const cAlloc& calloc) = delete;
 
     template<typename T> 
-    void alloc(std::size_t size) const {}
+    void alloc(std::size_t size) 
+    {
+        // Scan through the free list and find an avalible memory spot
+        memBlock* curr = new memBlock;
+        curr = m_header;
+
+        std::size_t total = 0;
+        std::size_t i = 0;
+        void* ptr;
+        
+        while (curr != nullptr) {
+            // Check if the memory requested has been found in the memory pool.
+            if (total == size) break;  
+            // Keep track of the first memory block.
+            if (i == 0) { ptr = curr->ptr; }
+
+            total += curr->size;
+            i++;
+
+            // Move onto the next memory block
+            curr = curr->next;
+        }
+        
+        // check if the total was not reached.
+        if (total != size) {
+            std::cout << "Not enough memory within the memory pool to allocate" << '\n';  
+        } else {
+            // Starting at void* ptr, go through and delete the memory blocks, from the free list
+            // since they have been allocated already
+        }
+
+        delete curr;
+    }
 
     void dealloc(void* ptr) {} 
 
@@ -93,6 +130,7 @@ private:
         newBlock->size = size;
     }
 };
+
 
 #endif // !CALLOC_H
 #define CALLOC_H
