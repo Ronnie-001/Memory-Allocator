@@ -7,9 +7,12 @@ struct memBlock
 {
     // include metadata.
     void* ptr;
+    std::size_t size;
+    bool isAllocated;    
+
     memBlock* next;
     memBlock* prev;
-    std::size_t size;
+
 };
 
 #endif // !MEMBLOCK_H

@@ -3,8 +3,8 @@
 
 int main()
 {
-    char* rawMemory = new char[24];
-    cAlloc* allocator = new cAlloc(rawMemory, 24);
+    char* rawMemory = new char[1000];
+    cAlloc* allocator = new cAlloc(rawMemory, sizeof(rawMemory));
 
     delete allocator;
     delete[] rawMemory;

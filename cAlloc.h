@@ -32,39 +32,34 @@ public:
 
     cAlloc(const cAlloc& calloc) = delete;
 
+    // TODO: Fix alloc() implementation to allocate one *contiguous* block of memory.
+    // Function used to alloc
     template<typename T> 
-    void alloc(std::size_t size) 
+    void* alloc(std::size_t requestedMemory) 
     {
-        // Scan through the free list and find an avalible memory spot
-        memBlock* curr = new memBlock;
+        memBlock* curr; 
         curr = m_header;
 
-        std::size_t total = 0;
-        std::size_t i = 0;
-        void* ptr;
-        
+        // Search the free list for an avaliable memory loation.
         while (curr != nullptr) {
-            // Check if the memory requested has been found in the memory pool.
-            if (total == size) break;  
-            // Keep track of the first memory block.
-            if (i == 0) { ptr = curr->ptr; }
+            if (curr->isAllocated) {
+                curr = curr->next;
+                continue;
+            }
 
-            total += curr->size;
-            i++;
-
-            // Move onto the next memory block
+            if (curr->size >= requestedMemory) {
+                T* ptr = static_cast<T*>(curr->ptr); 
+                // Allocate memory acording to the size of the DS passed in.
+                ptr += sizeof(T);
+                curr->isAllocated = true;
+                
+                return curr->ptr;
+            }
             curr = curr->next;
         }
-        
-        // check if the total was not reached.
-        if (total != size) {
-            std::cout << "Not enough memory within the memory pool to allocate" << '\n';  
-        } else {
-            // Starting at void* ptr, go through and delete the memory blocks, from the free list
-            // since they have been allocated already
-        }
-
-        delete curr;
+            
+        // ONLY if the requested memory cannot be allocated.
+        return nullptr;
     }
 
     void dealloc(void* ptr) {} 
@@ -76,12 +71,14 @@ private:
     void buildFreeList(memBlock* head, char* memPool, const std::size_t size)
     {
         memBlock* temp; 
-        for (std::size_t i = 0; i < size; i+= 4) {
+        for (std::size_t i = 0; i < size; i+= 20) {
             if (i == 0) {
                 head->ptr = static_cast<void*>(memPool);
+                head->size = 20;
+                head->isAllocated = false;
+
                 head->prev = nullptr;
                 head->next = nullptr;
-                head->size = 4;
                 
                 std::cout << "HEAD: " << head->ptr << '\n';
 
@@ -90,9 +87,12 @@ private:
                 memBlock* newBlock = new memBlock;                
                 // Set metadata about the block.
                 newBlock->ptr = static_cast<void*>(&memPool[i]);
+                newBlock->size = 20; // represents 20 bytes
+                newBlock->isAllocated = false;
+
+
                 newBlock->next = nullptr;  
                 newBlock->prev = temp; 
-                newBlock->size = 4; // represents 4 bytes
                 
                 // Move forward.
                 temp->next = newBlock;
