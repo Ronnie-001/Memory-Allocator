@@ -1,8 +1,9 @@
 #ifndef MEMBLOCK_H
 #define MEMBLOCK_H
 
-// Used to keep track of avaliable memory spaces within the free list
 #include <cstddef>
+
+// Used to keep track of avaliable memory spaces within the free list
 struct memBlock 
 {
     // include metadata.

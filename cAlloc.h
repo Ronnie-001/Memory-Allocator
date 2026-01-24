@@ -118,6 +118,9 @@ private:
         block->isAllocated = true;
 
         std::size_t newSize = (block->size) - newBlockSize;
+
+        std::cout << newSize << '\n';
+        
         memBlock* newBlk = createMemoryBlock(newSize, block, block->next);
 
         void* blkPtr = block->ptr;           
@@ -125,8 +128,10 @@ private:
         // Cast to char* so the pointer can be incremented by x bytes.
         char* charPtr = static_cast<char*>(blkPtr);
         charPtr += newBlockSize;
-
         newBlk->ptr = static_cast<void*>(charPtr);
+
+        // point torwards the new block
+        block->next = newBlk;
     } 
 
     /* 
@@ -155,23 +160,31 @@ private:
     memBlock* createMemoryBlock(std::size_t size, memBlock* prev, memBlock* next) 
     {
         memBlock* newBlock = new memBlock;
-            
+
         newBlock->size = size;
         newBlock->prev = prev;
         newBlock->next = next;
 
         return newBlock;
     }
-
+    
+    /* 
+     * Function used to print out the free list.
+     * Written mainly for debugging purposes.
+    */
     void printFreeList() 
     {
         memBlock* curr = m_header;
 
         while (curr != nullptr) {
             if (curr->isAllocated) {
-                std::cout << "(A)" << "[" << curr->ptr << "]" << ":" << curr->size << ":" << "[" << curr->ptr << "]" << "->"; 
+                if (curr->prev == nullptr) {
+                    std::cout << "(A)" << "[" << curr->ptr << "]" << ":" << curr->size << "->"; 
+                } else {
+                    std::cout << "(A)" << "[" << curr->ptr << "]" << ":" << curr->size << ":" << "[" << curr->prev->ptr << "]" << "->"; 
+                }
             } else  {
-                std::cout << "[" << curr->ptr << "]" << ":" << curr->size  << ":" << "[" << curr->prev->ptr << "]" << "->"; 
+                std::cout << "[" << curr->ptr << "]" << ":" << curr->size << ":" << "[" << curr->prev->ptr << "]" << "->"; 
             }
             curr = curr->next;
         }
