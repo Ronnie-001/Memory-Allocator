@@ -70,16 +70,17 @@ public:
     {
         // Loop through the free list to find the matching memory address
         memBlock* curr = m_header;
+
         while (curr != nullptr) {
             if (ptr == curr->ptr) {
-                // deallocate the memory
+                // Mark the avaliable block as free to use.
                 curr->isAllocated = false;   
-                // delete the value at the memory location.
-                curr->ptr = nullptr;
                 break; 
             }
+            curr = curr->next;
         } 
-        printFreeList();
+
+       printFreeList();
     } 
 
 private:
@@ -193,8 +194,12 @@ private:
                 } else {
                     std::cout << "(A)" << "[" << curr->ptr << "]" << ":" << curr->size << ":" << "[" << curr->prev->ptr << "]" << "->"; 
                 }
-            } else  {
-                std::cout << "[" << curr->ptr << "]" << ":" << curr->size << ":" << "[" << curr->prev->ptr << "]" << "->"; 
+            } else {
+                if (curr->prev == nullptr) {
+                    std::cout << "[" << curr->ptr << "]" << ":" << curr->size << ":" << "->"; 
+                } else {
+                    std::cout << "[" << curr->ptr << "]" << ":" << curr->size << ":" << "[" << curr->prev->ptr << "]" << "->"; 
+                }
             }
             curr = curr->next;
         }
