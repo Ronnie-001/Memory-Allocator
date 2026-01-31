@@ -34,8 +34,6 @@ public:
     // Delete the copy constructor to avoid copies of the memory pool being cosntructed.
     cAlloc(const cAlloc& calloc) = delete;
 
-    // TODO: Fix alloc() implementation to allocate one *contiguous* block of memory.
-    // Function used to alloc
     void* alloc(std::size_t requestedMemory) 
     {
         memBlock* curr; 
@@ -49,7 +47,6 @@ public:
             }
             
             if (curr->size >= requestedMemory) {
-                
                 if (curr->size > requestedMemory) {
                     // Split the memory block.
                     splitMemoryBlock(curr, requestedMemory);
@@ -69,9 +66,24 @@ public:
         return nullptr;
     }
 
-    void dealloc(void* ptr) {} 
+    void dealloc(void* ptr)
+    {
+        // Loop through the free list to find the matching memory address
+        memBlock* curr = m_header;
+        while (curr != nullptr) {
+            if (ptr == curr->ptr) {
+                // deallocate the memory
+                curr->isAllocated = false;   
+                // delete the value at the memory location.
+                curr->ptr = nullptr;
+                break; 
+            }
+        } 
+        printFreeList();
+    } 
 
 private:
+
     /* Function used to construct the free list. 
       Returns a memBlock* to the head of the constructed free list.
     */

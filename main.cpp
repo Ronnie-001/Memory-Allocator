@@ -6,9 +6,13 @@ int main()
     char* rawMemory = new char[100];
     cAlloc* allocator = new cAlloc(rawMemory, 100);
     
-    int* ptr = static_cast<int*>(allocator->alloc(sizeof(int)));
-    *ptr = 42;
+    // Allocate memory
+    int* ptr1 = static_cast<int*>(allocator->alloc(sizeof(int)));
+    *ptr1 = 42;
 
+    // Deallcate memory
+
+    
     delete allocator;
     delete[] rawMemory;
 
